@@ -38,12 +38,13 @@ public class TrayApp {
 
         MenuItem edit = new MenuItem("Editar dominio CORS...");
         edit.addActionListener(e -> {
-            String current = CorsOriginsStore.readOrDefault(System.getProperty("cors.allowed.origins", ""));
+            String current = CorsOriginsStore.readOrDefault("http://localhost:4200");
             String picked = CorsOriginsDialog.ask(current);
             if (picked != null) {
                 CorsOriginsStore.save(picked);
+                System.setProperty("cors.allowed.origins", picked);
                 if (icon != null) {
-                    icon.displayMessage("PServer", "Guardado. Reinicia para aplicar el nuevo dominio.", TrayIcon.MessageType.INFO);
+                    icon.displayMessage("PServer", "Configuración actualizada al instante.", TrayIcon.MessageType.INFO);
                 }
             }
         });
@@ -72,20 +73,29 @@ public class TrayApp {
 
     private void restartSelf() {
         try {
-            String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-            String jarPath = new File(TrayApp.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
-
-            if (jarPath.endsWith(".jar")) {
-                new ProcessBuilder(javaBin, "-jar", jarPath).start();
+            String appPath = System.getProperty("app.path");
+            if (appPath != null && !appPath.isBlank()) {
+                new ProcessBuilder(appPath).start();
                 System.exit(0);
                 return;
             }
 
-            icon.displayMessage("PServer", "No pude reiniciar automáticamente en este modo. Cierra y abre otra vez.", TrayIcon.MessageType.WARNING);
+            String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+            File currentPath = new File(TrayApp.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            String path = currentPath.getPath();
+
+            ProcessBuilder builder;
+            if (path.endsWith(".jar")) {
+                builder = new ProcessBuilder(javaBin, "-jar", path);
+            } else {
+                builder = new ProcessBuilder(javaBin, "-cp", System.getProperty("java.class.path"), "com.prapp.pserver.PserverApplication");
+            }
+
+            builder.start();
+            System.exit(0);
         } catch (Exception ex) {
-            try {
-                icon.displayMessage("PServer", "Error reiniciando. Cierra y abre otra vez.", TrayIcon.MessageType.ERROR);
-            } catch (Exception ignored) {
+            if (icon != null) {
+                icon.displayMessage("PServer", "Error al reiniciar: " + ex.getMessage(), TrayIcon.MessageType.ERROR);
             }
         }
     }
