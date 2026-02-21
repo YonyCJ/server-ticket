@@ -90,20 +90,24 @@ public class TrayApp {
             String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "javaw.exe";
 
             if (appPath == null || appPath.isBlank()) {
-                File currentPath = new File(TrayApp.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-                String path = currentPath.getPath();
+                File sourceLoc = new File(TrayApp.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+                String path = sourceLoc.getAbsolutePath();
 
                 if (path.endsWith(".jar")) {
                     appPath = "\"" + javaBin + "\" -jar \"" + path + "\"";
                 } else {
-                    appPath = "\"" + javaBin + "\" -cp \"" + path + "\" com.prapp.pserver.PserverApplication";
+                    String cp = System.getProperty("java.class.path");
+
+                    if (cp.length() > 2000) {
+                        System.out.println("Classpath demasiado largo para el registro. Registrando ruta de prueba.");
+                        appPath = "\"" + javaBin + "\" -cp \"target/classes\" com.prapp.pserver.PserverApplication";
+                    } else {
+                        appPath = "\"" + javaBin + "\" -cp \"" + cp + "\" com.prapp.pserver.PserverApplication";
+                    }
                 }
             } else {
-                appPath = "\"" + appPath + "\"";
-            }
-            if (appPath.length() > 2000) {
-                System.out.println("Path demasiado largo para el registro (Modo IDE). Saltando registro real.");
-                return;
+                String cleanPath = appPath.replace("\"", "");
+                appPath = "\"" + cleanPath + "\"";
             }
 
             String[] cmd = {
@@ -112,11 +116,15 @@ public class TrayApp {
             };
 
             Process p = Runtime.getRuntime().exec(cmd);
-            p.waitFor();
 
-            System.out.println("Comando registro ejecutado.");
+            if (p.waitFor() == 0) {
+                System.out.println("Registro exitoso: " + appPath);
+            } else {
+                System.err.println("Error al registrar. Código: " + p.exitValue());
+            }
+
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Error: " + e.getMessage());
         }
     }
 
