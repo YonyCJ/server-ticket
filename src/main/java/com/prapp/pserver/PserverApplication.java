@@ -23,7 +23,7 @@ public class PserverApplication {
                 System.exit(0);
             }
         }
-
+        System.setProperty("java.awt.headless", "false");
         new SpringApplicationBuilder(PserverApplication.class)
                 .headless(false)
                 .run(args);
