@@ -1,21 +1,25 @@
 package com.prapp.pserver.printer;
 
+import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
-public final class CorsOriginsStore {
+@Component
+public class CorsOriginsStore {
 
-    private CorsOriginsStore() {}
+    public CorsOriginsStore() {}
 
-    public static Path file() {
-        String home = System.getProperty("user.home");
-        return Path.of(home, ".pserver", "cors-origins.txt");
+    public List<String> getOrigins() {
+        return parseOrigins(readOrDefault("http://localhost:4200"));
     }
 
     public static String readOrDefault(String def) {
         try {
-            Path f = file();
+            Path f = getFilePath();
             if (!Files.exists(f)) return def;
             String v = Files.readString(f, StandardCharsets.UTF_8).trim();
             return v.isBlank() ? def : v;
@@ -26,10 +30,21 @@ public final class CorsOriginsStore {
 
     public static void save(String value) {
         try {
-            Path f = file();
+            Path f = getFilePath();
             Files.createDirectories(f.getParent());
             Files.writeString(f, value, StandardCharsets.UTF_8);
-        } catch (Exception ignored) {
-        }
+        } catch (Exception ignored) {}
+    }
+
+    private static Path getFilePath() {
+        String home = System.getProperty("user.home");
+        return Path.of(home, ".pserver", "cors-origins.txt");
+    }
+
+    private List<String> parseOrigins(String raw) {
+        return Arrays.stream(raw.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .collect(Collectors.toList());
     }
 }

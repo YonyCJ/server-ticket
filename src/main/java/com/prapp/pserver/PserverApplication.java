@@ -9,16 +9,13 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 public class PserverApplication {
 
     public static void main(String[] args) {
-        String def = "https://dominio.com";
+        String def = "http://localhost:4200";
         String current = CorsOriginsStore.readOrDefault(def);
 
         String picked = CorsOriginsDialog.ask(current);
         if (picked != null) {
             CorsOriginsStore.save(picked);
-            current = picked;
         }
-
-        System.setProperty("cors.allowed.origins", current);
 
         new SpringApplicationBuilder(PserverApplication.class)
                 .headless(false)
