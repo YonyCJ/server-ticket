@@ -17,9 +17,14 @@ public class CorsOriginsStore {
         return parseOrigins(readOrDefault("http://localhost:4200"));
     }
 
+    public static Path file() {
+        String home = System.getProperty("user.home");
+        return Path.of(home, ".pserver", "cors-origins.txt");
+    }
+
     public static String readOrDefault(String def) {
         try {
-            Path f = getFilePath();
+            Path f = file();
             if (!Files.exists(f)) return def;
             String v = Files.readString(f, StandardCharsets.UTF_8).trim();
             return v.isBlank() ? def : v;
@@ -30,15 +35,10 @@ public class CorsOriginsStore {
 
     public static void save(String value) {
         try {
-            Path f = getFilePath();
+            Path f = file();
             Files.createDirectories(f.getParent());
             Files.writeString(f, value, StandardCharsets.UTF_8);
         } catch (Exception ignored) {}
-    }
-
-    private static Path getFilePath() {
-        String home = System.getProperty("user.home");
-        return Path.of(home, ".pserver", "cors-origins.txt");
     }
 
     private List<String> parseOrigins(String raw) {
