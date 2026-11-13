@@ -1,5 +1,8 @@
 package com.prapp.pserver.printer;
 
+import com.prapp.pserver.ecrt.EcrtSettings;
+import com.prapp.pserver.ecrt.EcrtSettingsDialog;
+import com.prapp.pserver.ecrt.EcrtSettingsStore;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -13,7 +16,13 @@ import java.io.InputStreamReader;
 @Component
 public class TrayApp {
 
+    private final EcrtSettingsStore ecrtSettingsStore;
+
     private TrayIcon icon;
+
+    public TrayApp(EcrtSettingsStore ecrtSettingsStore) {
+        this.ecrtSettingsStore = ecrtSettingsStore;
+    }
 
     @EventListener(ApplicationReadyEvent.class)
     public void onReady() throws Exception {
@@ -46,6 +55,17 @@ public class TrayApp {
             }
         });
 
+        MenuItem terminalTarjeta = new MenuItem("Terminal de tarjeta...");
+        terminalTarjeta.addActionListener(e -> {
+            EcrtSettings elegido = EcrtSettingsDialog.ask(ecrtSettingsStore.load());
+            if (elegido != null) {
+                ecrtSettingsStore.save(elegido);
+                if (icon != null) {
+                    icon.displayMessage("PServer", "Terminal de tarjeta actualizada.", TrayIcon.MessageType.INFO);
+                }
+            }
+        });
+
         CheckboxMenuItem startupItem = new CheckboxMenuItem("Arrancar al encender PC", isStartupEnabled());
         startupItem.addItemListener(e -> {
             if (startupItem.getState()) {
@@ -64,6 +84,7 @@ public class TrayApp {
         menu.add(status);
         menu.addSeparator();
         menu.add(edit);
+        menu.add(terminalTarjeta);
         menu.add(startupItem);
         menu.add(restart);
         menu.addSeparator();

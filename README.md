@@ -42,3 +42,16 @@ jpackage ^
 --dest "dist" ^
 --icon "src/main/resources/icon.ico" ^
 --java-options "-Dapp.path=\"$ROOTDIR\Server Ticket.exe\""
+
+
+Terminal de tarjeta (PAX A30, ECRT)
+
+El agente tambien conversa con la terminal de tarjeta para el POS. Endpoints: GET /ecrt/health, POST /ecrt/sale, POST /ecrt/void y POST /ecrt/close.
+
+Configuracion: icono de la bandeja, opcion "Terminal de tarjeta...". Se guarda en la carpeta del usuario, archivo .pserver/ecrt.properties (ejemplo en ecrt.properties.example).
+
+- IP y puerto: los muestra la terminal en "Datos de conexion", con la terminal en modo esclavo.
+- Clave del agente: se genera sola la primera vez. Hay que copiarla en el POS de esa PC (boton "Tarjeta").
+- El dominio del POS debe estar en "Editar dominio CORS...".
+
+Solo atiende peticiones /ecrt hechas desde la misma PC.

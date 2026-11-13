@@ -38,7 +38,11 @@ public class CorsConfig implements Filter {
             response.setHeader("Access-Control-Allow-Origin", origin);
             response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
             response.setHeader("Access-Control-Max-Age", "3600");
-            response.setHeader("Access-Control-Allow-Headers", "*");
+            String solicitados = request.getHeader("Access-Control-Request-Headers");
+            response.setHeader("Access-Control-Allow-Headers", solicitados != null && !solicitados.isBlank() ? solicitados : "*");
+            if ("true".equalsIgnoreCase(request.getHeader("Access-Control-Request-Private-Network"))) {
+                response.setHeader("Access-Control-Allow-Private-Network", "true");
+            }
             response.setHeader("Access-Control-Allow-Credentials", "true");
         }
 
