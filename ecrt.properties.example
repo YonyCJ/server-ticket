@@ -1,8 +1,8 @@
 terminalHost=192.168.1.50
 terminalPort=8080
 connectTimeoutMs=5000
-saleTimeoutMs=120000
-voidTimeoutMs=60000
+saleTimeoutMs=60000
+voidTimeoutMs=30000
 closeTimeoutMs=180000
 lineEnding=none
 accessToken=CAMBIAR-POR-UNA-CLAVE-LARGA

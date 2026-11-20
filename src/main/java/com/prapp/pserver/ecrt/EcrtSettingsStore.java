@@ -35,8 +35,8 @@ public class EcrtSettingsStore {
                 texto(props, "terminalHost", ""),
                 entero(props, "terminalPort", 0),
                 entero(props, "connectTimeoutMs", 5000),
-                entero(props, "saleTimeoutMs", 120000),
-                entero(props, "voidTimeoutMs", 60000),
+                entero(props, "saleTimeoutMs", 60000),
+                entero(props, "voidTimeoutMs", 30000),
                 entero(props, "closeTimeoutMs", 180000),
                 texto(props, "lineEnding", "none"),
                 token.isBlank() ? nuevoToken() : token
